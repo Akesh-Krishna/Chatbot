@@ -1,0 +1,48 @@
+JS - if message is too long or short
+if (messageText.length > 500) {
+  alert("Your message is too long!");
+  return;
+}
+
+css
+@media (max-width: 768px) {
+  .chat-container {
+    margin: 50px auto;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .chat-box {
+    max-height: 50vh;
+  }
+
+  .input-box {
+    flex-direction: column;
+  }
+
+  input {
+    margin-bottom: 10px;
+  }
+}
+
+:root {
+  --primary-color: #1976d2;
+  --secondary-color: #e0e0e0;
+  --text-color: #333;
+}
+
+html
+<button id="send-button" aria-label="Send message">Send</button>
+
+JS
+fetch('/api/nlp', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ message: messageText }),
+})
+  .then((response) => response.json())
+  .then((data) => {
+    addMessageToChat(data.response, 'bot-message', true);
+  });
