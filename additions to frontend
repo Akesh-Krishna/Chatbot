@@ -33,6 +33,10 @@ css
 
 html
 <button id="send-button" aria-label="Send message">Send</button>
+<div class="theme-switcher">
+  <button id="theme-toggle">Switch Theme</button>
+</div>
+
 
 JS
 fetch('/api/nlp', {
