@@ -4,6 +4,37 @@ if (messageText.length > 500) {
   return;
 }
 
+/* Default (Light Theme) */
+:root {
+  --primary-color: #1976d2;
+  --secondary-color: #e0e0e0;
+  --text-color: #333;
+  --background-color: #ffffff;
+}
+
+/* Dark Theme */
+.dark-theme {
+  --primary-color: #121212;
+  --secondary-color: #1e1e1e;
+  --text-color: #ffffff;
+  --background-color: #333333;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.chat-container {
+  background-color: var(--secondary-color);
+}
+
+
 css
 @media (max-width: 768px) {
   .chat-container {
