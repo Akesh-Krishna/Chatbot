@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WMA AI Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>WMA AI Assistant</h1>
+
+    <!-- Main Menu Button -->
+    <button id="mainMenuButton" class="main-menu-button">Main Menu</button>
+
+    <div class="chat-container">
+        <div id="chat-box" class="chat-box">
+          <!-- Messages will be dynamically added here -->
+        </div>
+        <div class="input-box">
+          <input type="text" id="chat-input" placeholder="Type your message...">
+          <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <div class="tiles-container" id="tilesContainer">
+        <div class="tile">Premium Deposit</div>
+        <div class="tile">Realtime Update</div>
+        <div class="tile">Policy Deletion</div>
+        <div class="tile">Loan Payment</div>
+        <div class="tile">Death Pending</div>
+        <div class="tile">Death Claim</div>
+        <div class="tile">Full Surrender</div>
+        <div class="tile">Partial Surrender</div>
+    </div>
+
+    <div class="chatbot-response" id="chatbotResponse">
+        <p><strong>Chatbot:</strong> Please enter the Policy Number.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
