@@ -468,3 +468,45 @@ body, html {
 .signup-form button {
   width: 80%;
 }
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up - WMA AI Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+  <div class="universe">
+    <div class="planet"></div>
+    <div class="rocket"></div>
+    <div class="stars"></div>
+  </div>
+
+  <div class="container">
+    <div class="left-section">
+      <h1>Welcome to WMA AI Chatbot</h1>
+    </div>
+
+    <div class="right-section">
+      <div class="form-box">
+        <h2>Create Account</h2>
+        {% if error %}
+          <p class="error">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+          <p class="success">{{ success }}</p>
+        {% endif %}
+        <form action="/create_account" method="POST">
+          <input type="text" name="username" placeholder="Username" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+          <button type="submit">Create Account</button>
+        </form>
+        <p>Already have an account? <a href="/login">Login</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
