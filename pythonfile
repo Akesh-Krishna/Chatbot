@@ -1,0 +1,32 @@
+import os
+import csv
+from flask import Blueprint, render_template, request, redirect, url_for, session
+
+main = Blueprint('main', __name__)
+
+DATA_FILE = "wma_chatbot/users.csv"  # File path where user data is saved
+
+@main.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm = request.form["confirm"]
+
+        if password == confirm:
+            file_exists = os.path.exists(DATA_FILE)
+            with open(DATA_FILE, "a", newline="") as f:
+                fieldnames = ["username", "password"]
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+                if not file_exists:
+                    writer.writeheader()
+
+                writer.writerow({"username": username, "password": password})
+
+            return redirect("/login")  # Redirect to login page after sign-up
+        else:
+            error = "Passwords do not match"
+            return render_template("signup.html", error=error)
+
+    return render_template("signup.html")
