@@ -30,3 +30,74 @@ def signup():
             return render_template("signup.html", error=error)
 
     return render_template("signup.html")
+
+
+
+import os
+import csv
+from flask import Blueprint, render_template, request, redirect, url_for, session
+
+main = Blueprint('main', __name__)
+DATA_FILE = "users.csv"
+
+# Ensure CSV file exists
+def ensure_data_file():
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["username", "password"])
+            writer.writeheader()
+
+@main.route("/")
+def home():
+    return redirect(url_for("main.login"))
+
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    ensure_data_file()
+    error = None
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        with open(DATA_FILE, newline="") as f:
+            reader = csv.DictReader(f)
+            if any(row["username"] == username and row["password"] == password for row in reader):
+                session["user"] = username
+                return redirect(url_for("main.bot"))
+            else:
+                error = "Invalid credentials"
+
+    return render_template("login.html", error=error)
+
+@main.route("/signup", methods=["GET", "POST"])
+def signup():
+    ensure_data_file()
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm = request.form["confirm"]
+
+        if password != confirm:
+            error = "Passwords do not match"
+            return render_template("signup.html", error=error)
+
+        with open(DATA_FILE, "a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["username", "password"])
+            writer.writerow({"username": username, "password": password})
+
+        return render_template("signup.html", success="Account created successfully!")
+
+    return render_template("signup.html")
+
+@main.route("/bot")
+def bot():
+    if "user" not in session:
+        return redirect(url_for("main.login"))
+    return render_template("bot.html", user=session["user"])
+
+@main.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("main.login"))
