@@ -1,0 +1,109 @@
+from app import create_app
+
+app = create_app()
+
+if __name__ == "__main__":
+    app.secret_key = "your_secret_key"
+    app.run(debug=True)
+
+
+from flask import Flask
+
+def create_app():
+    app = Flask(__name__)
+    app.secret_key = "your_secret_key"
+
+    from .routes import main
+    app.register_blueprint(main)
+
+    return app
+
+
+import os
+import csv
+from flask import Blueprint, render_template, request, redirect, url_for, session
+
+main = Blueprint('main', __name__)
+
+DATA_FILE = 'user_data.csv'
+
+def ensure_data_file():
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['username', 'password'])
+            writer.writeheader()
+
+@main.route("/")
+def home():
+    return redirect(url_for('main.login'))
+
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    ensure_data_file()
+    error = None
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        with open(DATA_FILE, newline="") as f:
+            reader = csv.DictReader(f)
+            if any(row["username"] == username and row["password"] == password for row in reader):
+                session["user"] = username
+                return redirect(url_for("main.chatbot"))
+            else:
+                error = "Invalid credentials"
+    return render_template("login.html", error=error)
+
+@main.route("/signup", methods=["GET", "POST"])
+def signup():
+    ensure_data_file()
+    error = None
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+
+        if password != confirm_password:
+            error = "Passwords do not match."
+        else:
+            with open(DATA_FILE, newline="") as f:
+                reader = csv.DictReader(f)
+                if any(row["username"] == username for row in reader):
+                    error = "Username already exists."
+                else:
+                    with open(DATA_FILE, 'a', newline="") as f:
+                        writer = csv.DictWriter(f, fieldnames=['username', 'password'])
+                        writer.writerow({'username': username, 'password': password})
+                    return redirect(url_for('main.login'))
+    return render_template("signup.html", error=error)
+
+@main.route("/chatbot")
+def chatbot():
+    if "user" not in session:
+        return redirect(url_for('main.login'))
+    return render_template("chatbot.html", username=session['user'])
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - WMA AI Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <h1>Welcome to WMA AI Chatbot</h1>
+        </div>
+        <div class="right-section">
+            <form method="POST" action="{{ url_for('main.login') }}">
+                <h2>Login</h2>
+                {% if error %}
+                    <p class="error">{{ error }}</p>
+                {% endif %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">
