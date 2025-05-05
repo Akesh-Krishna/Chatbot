@@ -1,0 +1,63 @@
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+import csv
+import os
+
+main = Blueprint("main", __name__)
+
+DATA_FILE = os.path.join(os.path.dirname(__file__), "../data/users.csv")
+
+# Ensure CSV file exists
+def ensure_data_file():
+    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["username", "password"])
+
+@main.route("/")
+def home():
+    return redirect(url_for("main.login"))
+
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    ensure_data_file()
+    error = None
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        with open(DATA_FILE, newline="") as f:
+            reader = csv.DictReader(f)
+            if any(row["username"] == username and row["password"] == password for row in reader):
+                session["user"] = username
+                return redirect(url_for("main.bot"))
+            else:
+                error = "Invalid credentials"
+
+    return render_template("login.html", error=error)
+
+@main.route("/signup", methods=["GET", "POST"])
+def signup():
+    ensure_data_file()
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm = request.form["confirm"]
+
+        if password != confirm:
+            return render_template("signup.html", error="Passwords do not match")
+
+        # Save to CSV
+        with open(DATA_FILE, "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([username, password])
+
+        return render_template("signup.html", success=True)
+
+    return render_template("signup.html")
+
+@main.route("/bot")
+def bot():
+    if "user" in session:
+        return f"Welcome, {session['user']}! You are now in the WMA AI chatbot."
+    return redirect(url_for("main.login"))
